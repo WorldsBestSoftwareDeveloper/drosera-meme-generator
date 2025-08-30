@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drosera Meme Generator</title>
+  <style>
+    /* Background animation */
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: linear-gradient(-45deg, #000000, #1a1a1a, #ff6a00, #ff8c1a);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+  color: #fff;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  background: #111111ee;
+  color: #f5f5f5;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+  max-width: 1200px;
+  width: 95%;
+  height: 95%;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .container { 
+    flex-direction: column; 
+    height: auto; 
+    margin-top: 100%;
+  }
+  .preview { 
+    order: 2; 
+    width: 100%; 
+    min-height: 250px; 
+  }
+  .controls { 
+    order: 1; 
+    padding: 15px; 
+  }
+
+  /* Fix headings and paragraph responsiveness */
+  h1 { 
+    font-size: 1.3rem; 
+    margin-bottom: 8px; 
+  }
+  p { 
+    font-size: 0.85rem; 
+    margin-bottom: 15px; 
+  }
+
+  label { font-size: 0.85rem; }
+
+  /* Make sliders more finger-friendly on mobile */
+  input[type="range"] { 
+    height: 14px; 
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    width: 26px; 
+    height: 26px;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 26px; 
+    height: 26px;
+  }
+}
+
+.controls {
+  flex: 1;
+  padding: 20px;
+  background: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+h1 {
+  font-size: 1.6rem;
+  margin-bottom: 10px;
+  color: #ff6a00;
+  text-align: center;
+}
+
+p { 
+  font-size: 0.95rem; 
+  margin-bottom: 20px; 
+  color: #ddd; 
+  text-align: center; 
+}
+
+label {
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #f5f5f5;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%; height: 8px; border-radius: 6px;
+  background: linear-gradient(to right, #ff6a00, #ffae52);
+}
+input[type="range"]::-webkit-slider-thumb {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #000; border: 2px solid #ff6a00;
+  cursor: pointer; box-shadow: 0 0 6px #ff6a00aa;
+}
+
+input[type="file"] {
+  border: none;
+  background: #ff6a00;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
+button {
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: #ff6a00;
+  color: white;
+  margin-top: 15px;
+}
+
+.preview { 
+  flex: 2; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  background: #000; 
+  padding: 20px; 
+}
+canvas { 
+  max-width: 100%; 
+  max-height: 100%; 
+  border: 2px solid #ff6a00; 
+  border-radius: 12px; 
+  background: #111; 
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Left Controls -->
+    <div class="controls">
+      <h1>Drosera Meme Generator</h1>
+      <p>Upload your PFP and overlay two logos.</p>
+
+      <input type="file" id="upload" accept="image/*">
+
+      <!-- Controls for Logo 1 -->
+      <h3>Logo 1</h3>
+      <label>Size: <input type="range" id="size1" min="5" max="50" value="20"></label>
+      <label>Opacity: <input type="range" id="opacity1" min="0" max="100" value="100"></label>
+      <label>Padding: <input type="range" id="padding1" min="0" max="600" value="10"></label>
+      <label>Position:
+        <select id="position1">
+          <option value="bottom-right">Bottom Right</option>
+          <option value="bottom-left">Bottom Left</option>
+          <option value="top-right">Top Right</option>
+          <option value="top-left">Top Left</option>
+        </select>
+      </label>
+      <!-- NEW: Shape Control -->
+      <label>Shape:
+        <select id="shape1">
+          <option value="square">Square</option>
+          <option value="circle">Circle</option>
+        </select>
+      </label>
+
+      <!-- Controls for Logo 2 -->
+      <h3>Logo 2</h3>
+      <label>Size: <input type="range" id="size2" min="5" max="50" value="20"></label>
+      <label>Opacity: <input type="range" id="opacity2" min="0" max="100" value="100"></label>
+      <label>Padding: <input type="range" id="padding2" min="0" max="600" value="10"></label>
+      <label>Position:
+        <select id="position2">
+          <option value="top-left">Top Left</option>
+          <option value="top-right">Top Right</option>
+          <option value="bottom-left">Bottom Left</option>
+          <option value="bottom-right">Bottom Right</option>
+        </select>
+      </label>
+      <!-- NEW: Shape Control -->
+      <label>Shape:
+        <select id="shape2">
+          <option value="square">Square</option>
+          <option value="circle">Circle</option>
+        </select>
+      </label>
+
+      <button id="download">⬇️ Download Image</button>
+    </div>
+
+    <!-- Right Preview -->
+    <div class="preview">
+      <canvas id="canvas"></canvas>
+    </div>
+  </div>
+
+  <script>
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  const upload = document.getElementById("upload");
+  const downloadBtn = document.getElementById("download");
+
+  // Logo images
+  let mainImg = null;
+  let logo1 = new Image();
+  logo1.src = "images/badge.jpg"; 
+  let logo2 = new Image();
+  logo2.src = "images/logo2.jpg"; 
+
+  // Default logo states
+  const logos = [
+    { img: logo1, size: 0.2, opacity: 1, x: 50, y: 50, shape: "square" },
+    { img: logo2, size: 0.2, opacity: 1, x: 200, y: 200, shape: "square" }
+  ];
+
+  // Get inputs
+  const controls = {
+    size1: document.getElementById("size1"),
+    opacity1: document.getElementById("opacity1"),
+    padding1: document.getElementById("padding1"),
+    position1: document.getElementById("position1"),
+    shape1: document.getElementById("shape1"),
+
+    size2: document.getElementById("size2"),
+    opacity2: document.getElementById("opacity2"),
+    padding2: document.getElementById("padding2"),
+    position2: document.getElementById("position2"),
+    shape2: document.getElementById("shape2"),
+  };
+
+  Object.values(controls).forEach(ctrl => ctrl.addEventListener("input", draw));
+
+  upload.addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = evt => {
+      mainImg = new Image();
+      mainImg.onload = draw;
+      mainImg.src = evt.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function draw() {
+    if (!mainImg) return;
+    canvas.width = mainImg.width;
+    canvas.height = mainImg.height;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(mainImg, 0, 0);
+
+    // Update logo settings from sliders + shape toggles
+    logos[0].size = controls.size1.value / 100;
+    logos[0].opacity = controls.opacity1.value / 100;
+    logos[0].shape = controls.shape1.value;
+
+    logos[1].size = controls.size2.value / 100;
+    logos[1].opacity = controls.opacity2.value / 100;
+    logos[1].shape = controls.shape2.value;
+
+    logos.forEach(l => drawLogo(l));
+  }
+
+  function drawLogo(logo) {
+    if (!logo.img.complete) return;
+    const logoSize = logo.size * canvas.width;
+    ctx.save();
+    ctx.globalAlpha = logo.opacity;
+
+    if (logo.shape === "circle") {
+      ctx.beginPath();
+      ctx.arc(logo.x + logoSize/2, logo.y + logoSize/2, logoSize/2, 0, Math.PI*2);
+      ctx.closePath();
+      ctx.clip();
+    }
+
+    ctx.drawImage(logo.img, logo.x, logo.y, logoSize, logoSize);
+
+    ctx.restore();
+  }
+
+  // --- DRAGGING LOGIC ---
+  let draggingLogo = null;
+  let offsetX, offsetY;
+
+  canvas.addEventListener("mousedown", startDrag);
+  canvas.addEventListener("touchstart", startDrag, { passive: false });
+
+  canvas.addEventListener("mousemove", drag);
+  canvas.addEventListener("touchmove", drag, { passive: false });
+
+  canvas.addEventListener("mouseup", endDrag);
+  canvas.addEventListener("touchend", endDrag);
+
+  function getEventPos(e) {
+    if (e.touches) {
+      return { x: e.touches[0].clientX - canvas.getBoundingClientRect().left,
+               y: e.touches[0].clientY - canvas.getBoundingClientRect().top };
+    } else {
+      return { x: e.offsetX, y: e.offsetY };
+    }
+  }
+
+  function startDrag(e) {
+    const pos = getEventPos(e);
+    // Check logos in reverse order so the "top-most" logo gets priority
+    for (let i = logos.length - 1; i >= 0; i--) {
+      const logo = logos[i];
+      const size = logo.size * canvas.width;
+      if (pos.x >= logo.x && pos.x <= logo.x + size &&
+          pos.y >= logo.y && pos.y <= logo.y + size) {
+        draggingLogo = logo;
+        offsetX = pos.x - logo.x;
+        offsetY = pos.y - logo.y;
+        break; // only grab one logo
+      }
+    }
+  }
+
+  function drag(e) {
+    if (!draggingLogo) return;
+    e.preventDefault();
+    const pos = getEventPos(e);
+    draggingLogo.x = pos.x - offsetX;
+    draggingLogo.y = pos.y - offsetY;
+    draw();
+  }
+
+  function endDrag() {
+    draggingLogo = null;
+  }
+
+  // Download
+  downloadBtn.addEventListener("click", () => {
+    if (!mainImg) return alert("Please upload an image first!");
+    const link = document.createElement("a");
+    link.download = "drosera_pfp.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  });
+</script>
+
+
+</body>
+</html>
